@@ -27,17 +27,26 @@ async def on_ready():
 
 @bot.command(name='appointments')
 async def appointments(ctx, limit: int = 10):
-    """Show upcoming appointments"""
+    """Show upcoming appointments (use 'all' for all appointments)"""
     try:
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("""
-            SELECT id, name, phone, service, datetime 
-            FROM appointments 
-            WHERE datetime >= NOW()
-            ORDER BY datetime 
-            LIMIT %s
-        """, (min(limit, 20),))
+        
+        if limit == 0 or str(limit).lower() == 'all':
+            cur.execute("""
+                SELECT id, name, phone, service, datetime 
+                FROM appointments 
+                WHERE datetime >= NOW()
+                ORDER BY datetime
+            """)
+        else:
+            cur.execute("""
+                SELECT id, name, phone, service, datetime 
+                FROM appointments 
+                WHERE datetime >= NOW()
+                ORDER BY datetime 
+                LIMIT %s
+            """, (limit,))
         
         rows = cur.fetchall()
         cur.close()
