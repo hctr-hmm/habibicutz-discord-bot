@@ -37,7 +37,7 @@ async def appointments(ctx, limit: int = 10):
             WHERE datetime >= NOW()
             ORDER BY datetime 
             LIMIT %s
-        """, (limit,))
+        """, (min(limit, 20),))
         
         rows = cur.fetchall()
         cur.close()
@@ -50,7 +50,12 @@ async def appointments(ctx, limit: int = 10):
         msg = "**Upcoming Appointments:**\n```"
         for row in rows:
             dt = row[4].strftime('%Y-%m-%d %H:%M')
-            msg += f"\n{row[0]}: {row[1]} | {row[2]} | {row[3]} | {dt}"
+            line = f"\n{row[0]}: {row[1]} | {row[2]} | {row[3]} | {dt}"
+            if len(msg) + len(line) + 3 > 1990:
+                msg += "```"
+                await ctx.send(msg)
+                msg = "```"
+            msg += line
         msg += "```"
         
         await ctx.send(msg)
@@ -181,10 +186,15 @@ async def query(ctx, *, sql: str):
         if cur.description:
             rows = cur.fetchall()
             msg = "```"
-            for row in rows[:20]:
-                msg += f"\n{row}"
-            if len(rows) > 20:
-                msg += f"\n... and {len(rows) - 20} more rows"
+            for row in rows[:10]:
+                line = f"\n{row}"
+                if len(msg) + len(line) + 3 > 1990:
+                    msg += "```"
+                    await ctx.send(msg)
+                    msg = "```"
+                msg += line
+            if len(rows) > 10:
+                msg += f"\n... and {len(rows) - 10} more rows"
             msg += "```"
         else:
             conn.commit()
