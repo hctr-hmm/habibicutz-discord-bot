@@ -17,7 +17,8 @@ def get_db():
         port=os.getenv('DB_PORT', '5432'),
         database=os.getenv('DB_NAME', 'barber'),
         user=os.getenv('DB_USER', 'barber'),
-        password=os.getenv('DB_PASSWORD', 'barber')
+        password=os.getenv('DB_PASSWORD', 'barber'),
+        client_encoding='UTF8'
     )
 
 @bot.event
